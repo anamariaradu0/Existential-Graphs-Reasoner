@@ -4,8 +4,6 @@
 #include <sstream>
 #include <iostream>
 #include <algorithm>
-#include <set>
-#include <map>
 #include <utility>
 #include <cassert>
 #include "./aegraph.h"
@@ -38,6 +36,7 @@ std::pair<std::string, std::string> split_first(std::string s,
     return {strip(s), std::string()};
 }
 
+
 std::vector<std::string> split_level(std::string s, char delimiter = ',') {
     // splits 's' into separate entities (atoms, subgraphs)
 
@@ -55,6 +54,7 @@ std::vector<std::string> split_level(std::string s, char delimiter = ',') {
     }
 }
 
+
 int AEGraph::num_subgraphs() const {
     return subgraphs.size();
 }
@@ -68,6 +68,7 @@ int AEGraph::num_atoms() const {
 int AEGraph::size() const {
     return num_atoms() + num_subgraphs();
 }
+
 
 bool AEGraph::operator<(const AEGraph& other) const {
     return this->repr() < other.repr();
@@ -165,6 +166,7 @@ std::string AEGraph::repr() const {
     return left + result + right;
 }
 
+
 void AEGraph::sort() {
     std::sort(atoms.begin(), atoms.end());
 
@@ -247,21 +249,18 @@ std::vector<std::vector<int>> AEGraph::get_paths_to(const AEGraph& other)
 
 std::vector<std::vector<int>> AEGraph::possible_double_cuts() const {
     // returns all paths in the tree that lead to a possible double cut
-    // README : subgraful care are un sg fiu, iar el este sugbraf
     std::vector<std::vector<int>> paths_to_cuts;
     int len_subgraphs = num_subgraphs();
 
-    for (int i = 0; i < len_subgraphs; ++i) {
-        if (subgraphs[i].num_subgraphs() == 1 && subgraphs[i].num_atoms() == 0) {
+    for (int i = 0; i < len_subgraphs; i++) {
+        if (subgraphs[i].num_subgraphs() == 1 &&
+                                            subgraphs[i].num_atoms() == 0) {
             paths_to_cuts.push_back({i});
         }
-
         auto r = subgraphs[i].possible_double_cuts();
-
         for (auto& v : r) {
-            v.insert(v.begin(),i);
+            v.insert(v.begin(), i);
         }
-
         copy(r.begin(), r.end(), back_inserter(paths_to_cuts));
     }
 
@@ -270,32 +269,29 @@ std::vector<std::vector<int>> AEGraph::possible_double_cuts() const {
 
 AEGraph AEGraph::double_cut(std::vector<int> where) const {
     // erases a double cut from the tree
-    // README : cautare recursiva prin tree, stergerea subgrafului care
-    // contine double cut, punerea frunzelor ca fii nodului bun
     AEGraph updated_graph(repr());
     int len_path = where.size();
-    
+
     if (len_path == 1) {
         AEGraph temp = subgraphs[where[0]].subgraphs[0];
-        int len_subgraphs = temp.num_subgraphs();
-        int len_atoms = temp.num_atoms();
 
-        for (int i = 0; i < len_atoms; ++i) {
+        int len_atoms = temp.num_atoms();
+        for (int i = 0; i < len_atoms; i++) {
             updated_graph.atoms.push_back(temp.atoms[i]);
         }
 
-        for (int i = 0; i < len_subgraphs; ++i) {
+        int len_subgraphs = temp.num_subgraphs();
+        for (int i = 0; i < len_subgraphs; i++) {
             updated_graph.subgraphs.push_back(temp.subgraphs[i]);
         }
 
         updated_graph.subgraphs.erase(updated_graph.subgraphs.begin() +
-            where[0]);
+                                    where[0]);
     } else {
         int index = where[0];
         where.erase(where.begin());
-
         updated_graph.subgraphs[index] =
-            updated_graph.subgraphs[index].double_cut(where);
+                            updated_graph.subgraphs[index].double_cut(where);
     }
 
     return updated_graph;
@@ -303,18 +299,17 @@ AEGraph AEGraph::double_cut(std::vector<int> where) const {
 
 
 std::vector<std::vector<int>> AEGraph::possible_erasures(int level) const {
-    // returns all paths in a tree that lead to a possible erasure
+    // returns all paths in the tree that lead to a possible erasure
     std::vector<std::vector<int>> paths_to_erasures;
-    int len_subgraphs = num_subgraphs();
-    int len_atoms = num_atoms();
 
-    if ((level % 2) && (num_subgraphs() + num_atoms() >=2) || level == -1) {
-        for (int i = 0; i < len_subgraphs + len_atoms; ++i) {
+    if (level % 2 && (size() > 1 || is_SA)) {
+        for (int i = 0; i < size(); i++) {
             paths_to_erasures.push_back({i});
         }
     }
 
-    for (int i = 0; i < len_subgraphs; ++i) {
+    int len_subgraphs = num_subgraphs();
+    for (int i = 0; i < len_subgraphs; i++) {
         auto r = subgraphs[i].possible_erasures(level + 1);
         for (auto& v : r) {
             v.insert(v.begin(), i);
@@ -327,46 +322,44 @@ std::vector<std::vector<int>> AEGraph::possible_erasures(int level) const {
 
 
 AEGraph AEGraph::erase(std::vector<int> where) const {
-    // erases an atom/subgraph from the tree
     AEGraph updated_graph(repr());
     int len_path = where.size();
-    
+    int index = where[0];
+
     if (len_path == 1) {
         int len_subgraphs = num_subgraphs();
         int len_atoms = num_atoms();
-        int index = where[0];
 
         if (index < len_subgraphs) {
-            updated_graph.subgraphs.erase(updated_graph.subgraphs.begin() + index);
-        } else {
-            if (index < len_subgraphs + len_atoms) {
-                updated_graph.atoms.erase(updated_graph.atoms.begin()
-                    + index - len_subgraphs);
-            }
+            updated_graph.subgraphs.erase(updated_graph.subgraphs.begin() +
+                                        index);
+        } else if (index < len_subgraphs + len_atoms) {
+            updated_graph.atoms.erase(updated_graph.atoms.begin() + index -
+                                    len_subgraphs);
         }
     } else {
-        int index = where[0];
         where.erase(where.begin());
-
         updated_graph.subgraphs[index] =
-            updated_graph.subgraphs[index].erase(where);
+                                    updated_graph.subgraphs[index].erase(where);
     }
 
     return updated_graph;
 }
 
-
 std::vector<std::vector<int>> AEGraph::possible_deiterations() const {
-    // returns a vector of all possible deitrations in the tree
     std::vector<std::vector<int>> paths_to_deiters;
     int len_subgraphs = num_subgraphs();
     int len_atoms = num_atoms();
- 
+
     for (int i = 0; i < len_subgraphs + len_atoms; i++) {
         for (int j = 0; j < len_subgraphs; j++) {
             if (i != j) {
                 if (i < len_subgraphs) {
-                    if (contains(subgraphs[i])) {
+                    if (subgraphs[j] == subgraphs[i]) {
+                        paths_to_deiters.push_back({j});
+                    }
+
+                    if (subgraphs[j].contains(subgraphs[i])) {
                         auto r = subgraphs[j].get_paths_to(subgraphs[i]);
                         for (auto& v : r) {
                             v.insert(v.begin(), j);
@@ -375,7 +368,7 @@ std::vector<std::vector<int>> AEGraph::possible_deiterations() const {
                                             back_inserter(paths_to_deiters));
                     }
                 } else {
-                    if (contains(atoms[i - len_subgraphs])) {
+                    if (subgraphs[j].contains(atoms[i - len_subgraphs])) {
                         auto r = subgraphs[j].get_paths_to(atoms[i -
                                                             len_subgraphs]);
                         for (auto& v : r) {
@@ -387,6 +380,7 @@ std::vector<std::vector<int>> AEGraph::possible_deiterations() const {
                 }
             }
         }
+
         if (i < len_subgraphs) {
             auto r = subgraphs[i].possible_deiterations();
             for (auto& v : r) {
@@ -395,29 +389,40 @@ std::vector<std::vector<int>> AEGraph::possible_deiterations() const {
             copy(r.begin(), r.end(), back_inserter(paths_to_deiters));
         }
     }
-    
+
     for (int i = 0; i < len_atoms; i++) {
         for (int j = 0; j < len_atoms; j++) {
-            if (i != j) {
-                if (atoms[i] == atoms[j]) {
-                    paths_to_deiters.push_back({j});
-                }
+            if (i != j && atoms[i] == atoms[j]) {
+                paths_to_deiters.push_back({j});
             }
         }
     }
 
-    // eliminating duplicates
-    std::vector<std::vector<int>>::iterator it;
-    it = std::unique(paths_to_deiters.begin(), paths_to_deiters.end());
-    paths_to_deiters.resize(std::distance(paths_to_deiters.begin(), it));
+    std::sort(paths_to_deiters.begin(), paths_to_deiters.end());
+    int no_paths = paths_to_deiters.size();
+    for (int i = 2; i < no_paths; i++) {
+        int ver = 1;
+        int len_path = paths_to_deiters[i].size();
+        int len_paths_to_deiters = paths_to_deiters[i - 1].size(); 
 
+        if (len_path == len_paths_to_deiters) {
+            for (int j = 0; j < len_path; j++) {
+                if (paths_to_deiters[i][j] != paths_to_deiters[i - 1][j]) {
+                    ver = 0;
+                    break;
+                }
+            }
+        } else {
+            ver = 0;
+        }
+        if (ver == 1) {
+            paths_to_deiters.erase(paths_to_deiters.begin() + i);
+        }
+    }
     return paths_to_deiters;
 }
 
 AEGraph AEGraph::deiterate(std::vector<int> where) const {
-    // deiterates using the erase function
-    AEGraph updated_graph(repr());
-    updated_graph = updated_graph.erase(where);
-    return updated_graph;
+    return erase(where);
 }
 
