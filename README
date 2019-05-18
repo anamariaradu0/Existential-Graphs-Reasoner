@@ -1,0 +1,43 @@
+Nume, Prenume: Lungu Razvan
+	           Radu Ana-Maria
+Grupa, Seria: 314CA
+
+Data inceperii temei: 11.05.2019
+Data finalizarii temei: 12.05.2019
+
+Probleme intampinate: - Gasirea motivului pentru care vectorul de cai catre
+	posibilele deiterari avea duplicate
+
+Algoritmul utilizat:
+	- possible_double_cuts: Stim ca un double-cut are loc atunci cand un
+		subgraf are un singur fiu, iar acela este subgraf. Cautam aceste
+		situatii in AEGraph si introducem caile catre ele in vectorul
+		paths_to_cuts.
+	- double_cut: Cautam recursiv in AEGraph folosind calea data de vectorul
+		where. Construim updated_graph, reprezentand tree-ul care nu contine
+		double-cut-ul Este suficient sa construim vectorii pentru atoms si
+		subgraphs, fara subgraful de la calea where.
+	- possible_erasures: Stiind ca orice subgraf poate fi sters daca se afla pe
+		un nivel par sau daca il stergem pornind din root (nivelul -1), cautam
+		recursiv aceste subgrafuri in tree si inseram caile catre ele in
+		vectorul paths_to_erasures. 
+	-erase: Stergerea atomului/subgrafului de la calea where se face recursiv,
+		modificand vectorul de atoms/subgraphs (respectiv).
+	-possible_deiterations: Stim ca un subgraf sau un atom poate fi deiterat
+		din tree daca el se regaseste intr-unul dintre fii sai. Folosim
+		metoda "contains" pe vectorul de subgrafuri si pe cel de atomi
+		pentru a stabili daca aceasta regula e regasita. Folosind metoda
+		"get_paths_to", introducem in vectorul "paths to deiters" caile gasite.
+		Cautarea se face recursiv prin tree. La final, se pastreaza elementele
+		unice din vectorul solutie.
+	-deiterate: Apeleaza metoda "erase" pentru a sterge un atom/subgraf
+		din tree, indicat de calea where.
+
+Contributiile membrilor:
+	// DE COMPLETAT
+
+Complexitatea temei:
+	- Tema nu a fost considerata dificila.
+
+Alte precizari:
+	-
