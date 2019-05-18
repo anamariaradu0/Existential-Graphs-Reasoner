@@ -313,7 +313,7 @@ std::vector<std::vector<int>> AEGraph::possible_erasures(int level) const {
         }
     }
 
-    // recursively 
+    // recursively checks every next level for the condition
     int len_subgraphs = num_subgraphs();
     for (int i = 0; i < len_subgraphs; i++) {
         auto r = subgraphs[i].possible_erasures(level + 1);
@@ -328,10 +328,13 @@ std::vector<std::vector<int>> AEGraph::possible_erasures(int level) const {
 
 
 AEGraph AEGraph::erase(std::vector<int> where) const {
+    // erases a subgraph/atom from the tree
     AEGraph updated_graph(repr());
     int len_path = where.size();
     int index = where[0];
-
+    
+    // recursively deletes the subgraph/atom from the respective position
+    // by modifying the corresponding vectors
     if (len_path == 1) {
         int len_subgraphs = num_subgraphs();
         int len_atoms = num_atoms();
@@ -353,18 +356,25 @@ AEGraph AEGraph::erase(std::vector<int> where) const {
 }
 
 std::vector<std::vector<int>> AEGraph::possible_deiterations() const {
+    // returns a vector of the paths to all possible deiterations
     std::vector<std::vector<int>> paths_to_deiters;
     int len_subgraphs = num_subgraphs();
     int len_atoms = num_atoms();
-
+    
+    // for each subgraph and atom, we chech whether it is found in one
+    // of its children
     for (int i = 0; i < len_subgraphs + len_atoms; i++) {
         for (int j = 0; j < len_subgraphs; j++) {
             if (i != j) {
                 if (i < len_subgraphs) {
+                    // checks whether there are two identical subgraphs
+                    // with the same parent
                     if (subgraphs[j] == subgraphs[i]) {
                         paths_to_deiters.push_back({j});
                     }
-
+                    
+                    // checks whether a subgraph contains another
+                    // identical to it
                     if (subgraphs[j].contains(subgraphs[i])) {
                         auto r = subgraphs[j].get_paths_to(subgraphs[i]);
                         for (auto& v : r) {
@@ -374,6 +384,7 @@ std::vector<std::vector<int>> AEGraph::possible_deiterations() const {
                                             back_inserter(paths_to_deiters));
                     }
                 } else {
+                    // checks for atoms
                     if (subgraphs[j].contains(atoms[i - len_subgraphs])) {
                         auto r = subgraphs[j].get_paths_to(atoms[i -
                                                             len_subgraphs]);
@@ -386,7 +397,8 @@ std::vector<std::vector<int>> AEGraph::possible_deiterations() const {
                 }
             }
         }
-
+    
+        // reccursive call of function
         if (i < len_subgraphs) {
             auto r = subgraphs[i].possible_deiterations();
             for (auto& v : r) {
@@ -395,7 +407,8 @@ std::vector<std::vector<int>> AEGraph::possible_deiterations() const {
             copy(r.begin(), r.end(), back_inserter(paths_to_deiters));
         }
     }
-
+    
+    // checks whether there are two identical atoms with the same parent
     for (int i = 0; i < len_atoms; i++) {
         for (int j = 0; j < len_atoms; j++) {
             if (i != j && atoms[i] == atoms[j]) {
@@ -403,7 +416,8 @@ std::vector<std::vector<int>> AEGraph::possible_deiterations() const {
             }
         }
     }
-
+    
+    // eliminating duplicates
     std::sort(paths_to_deiters.begin(), paths_to_deiters.end());
     int no_paths = paths_to_deiters.size();
     for (int i = 2; i < no_paths; i++) {
@@ -416,6 +430,7 @@ std::vector<std::vector<int>> AEGraph::possible_deiterations() const {
 }
 
 AEGraph AEGraph::deiterate(std::vector<int> where) const {
+    // elimination deiterations using the erase method
     return erase(where);
 }
 
