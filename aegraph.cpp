@@ -407,24 +407,11 @@ std::vector<std::vector<int>> AEGraph::possible_deiterations() const {
     std::sort(paths_to_deiters.begin(), paths_to_deiters.end());
     int no_paths = paths_to_deiters.size();
     for (int i = 2; i < no_paths; i++) {
-        int ver = 1;
-        int len_path = paths_to_deiters[i].size();
-        int len_paths_to_deiters = paths_to_deiters[i - 1].size(); 
-
-        if (len_path == len_paths_to_deiters) {
-            for (int j = 0; j < len_path; j++) {
-                if (paths_to_deiters[i][j] != paths_to_deiters[i - 1][j]) {
-                    ver = 0;
-                    break;
-                }
-            }
-        } else {
-            ver = 0;
-        }
-        if (ver == 1) {
+        if (paths_to_deiters[i] == paths_to_deiters[i - 1]) {
             paths_to_deiters.erase(paths_to_deiters.begin() + i);
         }
     }
+
     return paths_to_deiters;
 }
 
