@@ -251,7 +251,9 @@ std::vector<std::vector<int>> AEGraph::possible_double_cuts() const {
     // returns all paths in the tree that lead to a possible double cut
     std::vector<std::vector<int>> paths_to_cuts;
     int len_subgraphs = num_subgraphs();
-
+    
+    // checks if a subgraph has exactly one child, that being a subgraph
+    // as well
     for (int i = 0; i < len_subgraphs; i++) {
         if (subgraphs[i].num_subgraphs() == 1 &&
                                             subgraphs[i].num_atoms() == 0) {
@@ -271,7 +273,9 @@ AEGraph AEGraph::double_cut(std::vector<int> where) const {
     // erases a double cut from the tree
     AEGraph updated_graph(repr());
     int len_path = where.size();
-
+    
+    // recursively reconstructs the new subgraphs and atoms
+    // vectors
     if (len_path == 1) {
         AEGraph temp = subgraphs[where[0]].subgraphs[0];
 
@@ -301,13 +305,15 @@ AEGraph AEGraph::double_cut(std::vector<int> where) const {
 std::vector<std::vector<int>> AEGraph::possible_erasures(int level) const {
     // returns all paths in the tree that lead to a possible erasure
     std::vector<std::vector<int>> paths_to_erasures;
-
+    
+    // checks if the level is even
     if (level % 2 && (size() > 1 || is_SA)) {
         for (int i = 0; i < size(); i++) {
             paths_to_erasures.push_back({i});
         }
     }
 
+    // recursively 
     int len_subgraphs = num_subgraphs();
     for (int i = 0; i < len_subgraphs; i++) {
         auto r = subgraphs[i].possible_erasures(level + 1);
