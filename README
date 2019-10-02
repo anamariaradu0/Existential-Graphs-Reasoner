@@ -1,45 +1,34 @@
-Nume, Prenume: Lungu Razvan
-	           Radu Ana-Maria
-Grupa, Seria: 314CA
+Names: Lungu Razvan
+	Radu Ana-Maria
+	
+Finish date: 12.05.2019
 
-Data inceperii temei: 11.05.2019
-Data finalizarii temei: 12.05.2019
+Difficulties: - Finding the reason why the vector of paths to the possible deiterations
+	held duplicates.
 
-Probleme intampinate: - Gasirea motivului pentru care vectorul de cai catre
-	posibilele deiterari avea duplicate
+Algorithm:
+	- possible_double_cuts: We know that a double cut appears when a subgraph
+		has a unique son, and that is a subgraph as well. We look for these
+		situations in AEGraph and we introduce the according paths in
+		the 'paths_to_cuts' vector.
+	- double_cut: We look recursively in AEGraph using the path given by the 'where'
+		vector. We build 'updated_graph', representing the tree without the
+		double cut. It is only necessary to build the vector for atoms and
+		subgraphs, we make no use of the subgraph at 'where'.
+	- possible_erasures: Knowing that any subgraph can be erased if it is on an even
+		lever or if we erase it starting from root (-1), we search recursively for
+		these subgraphs in the tree and we insert the paths to them in the
+		'paths_to_erasures' vector.
+	-erase: The erasure of the atom/subgraph is done recursively, by modifying the
+		vectors for atoms/subgraphs respectively.
+	-possible_deiterations: We know that a subgraph or an atom can be deiterated
+		from the tree if it repeats itself in one of its sons. We use the
+		'contains' method for the vectors of atoms/subgraphs to verify this
+		rule. Using 'get_paths_to', we introduce in 'paths_to_deiters' the
+		pths we found. The search is recursive through the tree. Finally, we
+		add the results in the solution vector.
+	-deiterate: Uses 'erase' to erase an atom/subgraph from the tree.
 
-Algoritmul utilizat:
-	- possible_double_cuts: Stim ca un double-cut are loc atunci cand un
-		subgraf are un singur fiu, iar acela este subgraf. Cautam aceste
-		situatii in AEGraph si introducem caile catre ele in vectorul
-		paths_to_cuts.
-	- double_cut: Cautam recursiv in AEGraph folosind calea data de vectorul
-		where. Construim updated_graph, reprezentand tree-ul care nu contine
-		double-cut-ul Este suficient sa construim vectorii pentru atoms si
-		subgraphs, fara subgraful de la calea where.
-	- possible_erasures: Stiind ca orice subgraf poate fi sters daca se afla pe
-		un nivel par sau daca il stergem pornind din root (nivelul -1), cautam
-		recursiv aceste subgrafuri in tree si inseram caile catre ele in
-		vectorul paths_to_erasures. 
-	-erase: Stergerea atomului/subgrafului de la calea where se face recursiv,
-		modificand vectorul de atoms/subgraphs (respectiv).
-	-possible_deiterations: Stim ca un subgraf sau un atom poate fi deiterat
-		din tree daca el se regaseste intr-unul dintre fii sai. Folosim
-		metoda "contains" pe vectorul de subgrafuri si pe cel de atomi
-		pentru a stabili daca aceasta regula e regasita. Folosind metoda
-		"get_paths_to", introducem in vectorul "paths to deiters" caile gasite.
-		Cautarea se face recursiv prin tree. La final, se pastreaza elementele
-		unice din vectorul solutie.
-	-deiterate: Apeleaza metoda "erase" pentru a sterge un atom/subgraf
-		din tree, indicat de calea where.
+How we did it: Brainstorming for each function, implementing both separately and
+	together, depending on the difficulties we encountered.
 
-Contributiile membrilor:
-	-Am lucrat impreuna si in paralel la toate functiile, acesta fiind si motivul
-		pentru care am terminat atat de repede. Nu am impartit functiile,
-		ci am vrut sa gandim logica si implementarea impreuna pentru toate.
-
-Complexitatea temei:
-	- Tema nu a fost considerata dificila.
-
-Alte precizari:
-	-
