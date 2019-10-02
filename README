@@ -16,7 +16,7 @@ Algorithm:
 		double cut. It is only necessary to build the vector for atoms and
 		subgraphs, we make no use of the subgraph at 'where'.
 	- possible_erasures: Knowing that any subgraph can be erased if it is on an even
-		lever or if we erase it starting from root (-1), we search recursively for
+		level or if we erase it starting from root (-1), we search recursively for
 		these subgraphs in the tree and we insert the paths to them in the
 		'paths_to_erasures' vector.
 	-erase: The erasure of the atom/subgraph is done recursively, by modifying the
@@ -25,9 +25,9 @@ Algorithm:
 		from the tree if it repeats itself in one of its sons. We use the
 		'contains' method for the vectors of atoms/subgraphs to verify this
 		rule. Using 'get_paths_to', we introduce in 'paths_to_deiters' the
-		pths we found. The search is recursive through the tree. Finally, we
+		paths we found. The search is recursive through the tree. Finally, we
 		add the results in the solution vector.
-	-deiterate: Uses 'erase' to erase an atom/subgraph from the tree.
+	-deiterate: We use 'erase' to deiterate an atom/subgraph from the tree.
 
 How we did it: Brainstorming for each function, implementing both separately and
 	together, depending on the difficulties we encountered.
